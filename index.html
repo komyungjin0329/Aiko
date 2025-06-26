@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게임 개발자를 위한 대화형 GitHub 가이드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony (Slate/Stone neutrals with a Teal accent) -->
+    <!-- Application Structure Plan: A single-page application with a fixed sidebar for navigation and a main content area. This modular, non-linear structure replaces the long-form report, allowing users to jump to specific topics like 'Project Setup' or 'Workflows'. This task-oriented design is better for learning and reference than a linear document. Key interactions include an interactive command cheatsheet and a comparative chart for branching strategies to enhance understanding. -->
+    <!-- Visualization & Content Choices: Report Info: Comparison of branching strategies -> Goal: Compare -> Viz: Horizontal Bar Chart (Chart.js) -> Interaction: Hover for tooltips with scores -> Justification: Visually summarizes complex trade-offs, making them easier to grasp than text alone. Report Info: Git LFS commands -> Goal: Inform/Organize -> Presentation: Interactive HTML Table -> Interaction: Click-to-copy command -> Justification: Provides a practical, ready-to-use tool for developers. Report Info: Branching workflow diagrams -> Goal: Organize/Explain -> Presentation: HTML/CSS (Tailwind) flexbox diagrams -> Interaction: Static visual aid -> Justification: Clarifies abstract workflow concepts without relying on external graphics or unsupported libraries. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .nav-link.active {
+            background-color: #0d9488; /* teal-700 */
+            color: white;
+            font-weight: 700;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 40vh;
+            width: 100%;
+            max-width: 800px;
+            max-height: 400px;
+        }
+        .code-block {
+            background-color: #1f2937; /* gray-800 */
+            color: #d1d5db; /* gray-300 */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: monospace;
+        }
+         .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #4b5563;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+        .code-block:hover .copy-btn {
+            opacity: 1;
+        }
+        .copy-feedback {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #10B981;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside class="w-1/5 bg-slate-200 p-4 sticky top-0 h-screen overflow-y-auto">
+            <h1 class="text-xl font-bold text-teal-800 mb-6">GitHub 학습 가이드</h1>
+            <nav id="main-nav">
+                <ul>
+                    <li><a href="#intro" class="nav-link block p-3 rounded-lg mb-2 transition-colors duration-200 hover:bg-slate-300">🚀 소개</a></li>
+                    <li><a href="#basics" class="nav-link block p-3 rounded-lg mb-2 transition-colors duration-200 hover:bg-slate-300">📚 기본 다지기</a></li>
+                    <li><a href="#setup" class="nav-link block p-3 rounded-lg mb-2 transition-colors duration-200 hover:bg-slate-300">🛠️ 프로젝트 설정</a></li>
+                    <li><a href="#workflow" class="nav-link block p-3 rounded-lg mb-2 transition-colors duration-200 hover:bg-slate-300">🌊 협업 워크플로우</a></li>
+                    <li><a href="#conclusion" class="nav-link block p-3 rounded-lg mb-2 transition-colors duration-200 hover:bg-slate-300">✨ 결론</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="w-4/5 p-8 lg:p-12 overflow-y-auto">
+            <!-- Introduction Section -->
+            <section id="intro" class="content-section">
+                <h2 class="text-4xl font-bold text-slate-900 mb-4">게임 개발자를 위한 GitHub</h2>
+                <p class="text-lg text-slate-600 mb-8">효율적인 버전 관리와 협업 전략 마스터하기</p>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <p class="mb-4">이 가이드는 게임 개발 프로젝트의 복잡성을 이해하고, Git과 GitHub를 효과적으로 활용하여 생산성을 극대화하는 방법을 안내합니다. 게임 개발은 단순 코딩을 넘어 아트, 사운드, 3D 모델 등 방대한 대용량 에셋이 끊임없이 생성되고 수정되는 복잡한 협업의 장입니다.</p>
+                    <p class="mb-4">따라서 효율적인 버전 관리 및 협업 시스템은 성공적인 게임 개발의 핵심입니다. 여기에서는 Git의 기본 개념부터 게임 개발 특유의 난제(대용량 파일, 엔진별 파일 관리)를 해결하는 실용적인 팁과 고급 전략까지, 여러분이 알아야 할 모든 것을 대화형으로 학습할 수 있습니다.</p>
+                    <p>각 섹션을 둘러보며 여러분의 프로젝트 관리 능력을 한 단계 업그레이드해 보세요.</p>
+                </div>
+            </section>
+
+            <!-- Basics Section -->
+            <section id="basics" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-6">기본 다지기: Git & GitHub</h2>
+                <p class="mb-8 text-slate-600">이 섹션에서는 버전 관리의 핵심인 Git과 협업의 중심인 GitHub의 기본 개념을 알아봅니다. 이 두 도구가 왜 현대 게임 개발에 필수적인지, 그리고 어떻게 상호 작용하여 개발 프로세스를 혁신하는지 이해하게 될 것입니다.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-bold mb-3 text-teal-700">Git이란? (버전 관리 시스템)</h3>
+                        <p class="mb-2">Git은 <strong>분산 버전 관리 시스템(DVCS)</strong>입니다. 모든 개발자가 프로젝트의 전체 기록을 자신의 컴퓨터에 복사하여 작업합니다. 이는 중앙 서버에 문제가 생겨도 작업이 중단되지 않으며, 오프라인 작업과 빠른 브랜칭/병합이 가능하다는 큰 장점을 제공합니다.</p>
+                        <p>게임 개발에서는 실험적인 기능을 독립된 '브랜치'에서 안전하게 개발할 수 있어, 창의적인 시도를 장려하고 리스크를 줄입니다.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-bold mb-3 text-teal-700">GitHub이란? (협업 플랫폼)</h3>
+                        <p class="mb-2">GitHub는 Git 저장소를 웹에서 호스팅하고 관리하는 서비스입니다. 단순히 코드를 저장하는 것을 넘어, 다음과 같은 강력한 협업 도구를 제공합니다:</p>
+                        <ul class="list-disc list-inside ml-2 text-slate-700">
+                            <li><strong>이슈 트래커:</strong> 버그, 기능 아이디어 등 할 일 관리</li>
+                            <li><strong>Pull Requests:</strong> 코드 변경사항 검토 및 토론</li>
+                            <li><strong>프로젝트 보드:</strong> 칸반 스타일의 작업 진행 상황 시각화</li>
+                        </ul>
+                        <p class="mt-2">이를 통해 프로그래머, 아티스트, 기획자 등 다양한 직군의 팀원들이 원활하게 소통하고 협업할 수 있습니다.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Setup Section -->
+            <section id="setup" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-6">프로젝트 설정: 게임 개발 맞춤 전략</h2>
+                 <p class="mb-8 text-slate-600">이 섹션에서는 실제 게임 프로젝트에 Git을 적용하기 위한 구체적인 설정 방법을 다룹니다. 게임 엔진의 특성을 고려한 `.gitignore` 파일 작성부터, 게임 개발의 가장 큰 난제인 대용량 에셋을 다루는 Git LFS, 그리고 Unity와 같은 특정 엔진에서 발생할 수 있는 문제를 사전에 방지하는 Git Hooks 활용법까지 깊이 있게 살펴봅니다.</p>
+
+                <div class="space-y-8">
+                    <!-- .gitignore -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-bold mb-3 text-teal-700">초기 설정 및 `.gitignore` 활용</h3>
+                        <p class="mb-4">게임 엔진(Unity, Unreal 등)은 빌드 파일, 임시 캐시 등 버전 관리가 필요 없는 수많은 파일을 생성합니다. `.gitignore` 파일은 이러한 파일들을 Git 추적에서 제외하여 저장소를 깨끗하고 효율적으로 유지하는 역할을 합니다.</p>
+                        <p class="mb-4"><strong>핵심:</strong> 불필요한 파일 제외는 저장소 용량을 줄이고, 클론/푸시/풀 속도를 향상시키며, 잠재적인 LFS 비용을 절감하는 중요한 최적화입니다.</p>
+                        <div class="relative">
+                            <pre class="code-block"><code># Unity .gitignore 예시
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+
+# Visual Studio / Rider
+.vs/
+*.sln
+*.csproj
+</code></pre>
+                            <button class="copy-btn" data-clipboard-target="#gitignore-example">복사</button>
+                        </div>
+                         <p class="text-sm mt-2 text-slate-500">GitHub의 <a href="https://github.com/github/gitignore" target="_blank" class="text-teal-600 hover:underline">gitignore 템플릿</a>을 활용하면 편리합니다.</p>
+                    </div>
+
+                    <!-- Git LFS -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-bold mb-3 text-teal-700">대용량 파일 관리: Git LFS</h3>
+                        <p class="mb-4">게임 에셋(이미지, 3D 모델, 오디오 등)은 크기가 매우 커서 일반 Git으로 관리하기 어렵습니다. <strong>Git LFS (Large File Storage)</strong>는 이 문제를 해결하기 위한 확장 기능입니다.</p>
+                        <p class="mb-4">LFS는 대용량 파일을 별도의 서버에 저장하고, Git 저장소에는 해당 파일을 가리키는 작은 '포인터' 파일만 저장합니다. 이를 통해 저장소의 크기를 획기적으로 줄이고 성능을 향상시킵니다.</p>
+                        <h4 class="font-bold mb-2">주요 LFS 명령어</h4>
+                        <div class="overflow-x-auto">
+                             <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th class="border-b-2 p-2 bg-slate-100">명령어</th>
+                                        <th class="border-b-2 p-2 bg-slate-100">설명</th>
+                                        <th class="border-b-2 p-2 bg-slate-100 w-16"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="border-b p-2 font-mono">git lfs install</td>
+                                        <td class="border-b p-2">현재 저장소에 LFS를 초기화합니다. (최초 1회)</td>
+                                        <td class="border-b p-2 text-center"><button class="copy-table-btn text-2xl" data-command="git lfs install" title="명령어 복사">📋</button></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="border-b p-2 font-mono">git lfs track "*.psd"</td>
+                                        <td class="border-b p-2">지정한 패턴의 파일(.psd)을 LFS로 추적합니다.</td>
+                                        <td class="border-b p-2 text-center"><button class="copy-table-btn text-2xl" data-command='git lfs track "*.psd"' title="명령어 복사">📋</button></td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50">
+                                        <td class="border-b p-2 font-mono">git lfs ls-files</td>
+                                        <td class="border-b p-2">LFS로 추적 중인 파일 목록을 확인합니다.</td>
+                                        <td class="border-b p-2 text-center"><button class="copy-table-btn text-2xl" data-command="git lfs ls-files" title="명령어 복사">📋</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="mt-4 text-sm text-red-600 bg-red-100 p-3 rounded-lg"><strong>주의:</strong> GitHub는 계정별로 LFS 무료 용량(스토리지 1GB, 대역폭 월 1GB)을 제공하며, 초과 시 추가 비용이 발생합니다. 비용 계획을 세우는 것이 중요합니다.</p>
+                    </div>
+                    
+                    <!-- Git Hooks -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-bold mb-3 text-teal-700">엔진별 파일 관리 및 자동화: Git Hooks</h3>
+                        <p class="mb-4"><strong>Git Hooks</strong>는 특정 Git 이벤트(예: 커밋 전)에 자동으로 스크립트를 실행하는 기능입니다. 이를 활용해 게임 개발에서 발생하는 고질적인 문제들을 사전에 방지할 수 있습니다.</p>
+                         <p class="mb-2"><strong>활용 사례 (Unity):</strong></p>
+                        <ul class="list-disc list-inside ml-2 space-y-2 text-slate-700">
+                             <li><strong>`.meta` 파일 관리:</strong> Unity에서는 모든 에셋에 `.meta` 파일이 쌍으로 존재해야 합니다. `pre-commit` hook을 사용해 커밋 전에 에셋과 `.meta` 파일의 짝이 맞는지 검사하여, 참조가 깨지는(Reference missing) 심각한 오류를 예방할 수 있습니다.</li>
+                             <li><strong>잘못된 파일명 방지:</strong> Windows와 macOS/Linux 간 파일 시스템 차이로 인해 발생하는 오류(예: 파일명에 `\` 사용)를 `pre-commit` hook으로 미리 차단할 수 있습니다.</li>
+                         </ul>
+                        <p class="mt-4">Git Hooks는 팀의 실수를 방지하고, 일관된 작업 환경을 유지하며, 비프로그래머 직군의 부담을 줄여주는 강력한 자동화 도구입니다.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Workflow Section -->
+            <section id="workflow" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-6">협업 워크플로우: 브랜치 전략 비교</h2>
+                 <p class="mb-8 text-slate-600">성공적인 협업을 위해서는 팀에 맞는 Git 브랜치 전략을 선택하는 것이 매우 중요합니다. 이 섹션에서는 대표적인 세 가지 브랜치 전략(Git Flow, GitHub Flow, Trunk-based Development)을 소개하고, 각각의 특징과 장단점을 비교 분석합니다. 특히 게임 개발이라는 특수한 환경에 어떤 전략이 더 적합할지 시각적인 차트와 함께 탐색해 봅니다.</p>
+
+                <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+                     <h3 class="text-2xl font-bold mb-4 text-teal-700">브랜치 전략 비교 차트</h3>
+                     <p class="mb-4">아래 차트는 각 전략을 '복잡성', '배포 속도', '안정성' 세 가지 기준으로 평가한 것입니다. 점수가 높을수록 해당 특성이 강함을 의미합니다. 마우스를 막대 위에 올려 상세 점수를 확인해 보세요.</p>
+                    <div class="chart-container">
+                        <canvas id="branchingChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h4 class="font-bold text-xl mb-2">Git Flow</h4>
+                        <p class="text-sm text-slate-600 mb-3">`main`, `develop`, `feature` 등 여러 브랜치를 사용하여 체계적이고 엄격하게 버전을 관리합니다.</p>
+                        <p><strong>적합:</strong> 대규모 프로젝트, 정기적인 릴리즈, 여러 버전 동시 지원이 필요할 때.</p>
+                        <p class="mt-2"><strong>게임 개발 고려사항:</strong> 구조가 복잡하여 빠른 반복과 실험이 중요한 게임 개발 초기에는 오버헤드가 될 수 있습니다.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h4 class="font-bold text-xl mb-2">GitHub Flow</h4>
+                        <p class="text-sm text-slate-600 mb-3">`main` 브랜치를 중심으로 모든 작업을 `feature` 브랜치에서 진행하고 Pull Request로 병합하는 단순한 모델입니다.</p>
+                        <p><strong>적합:</strong> 잦은 배포가 필요한 웹 서비스, CI/CD가 잘 구축된 소규모 팀.</p>
+                         <p class="mt-2"><strong>게임 개발 고려사항:</strong> 단순하고 빨라 게임 개발에 매력적입니다. 빠른 피드백 루프를 만드는 데 유리합니다.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h4 class="font-bold text-xl mb-2">Trunk-based Development</h4>
+                        <p class="text-sm text-slate-600 mb-3">모든 개발자가 `main`(trunk) 브랜치에 직접 또는 매우 짧은 수명의 브랜치를 통해 자주 통합합니다.</p>
+                        <p><strong>적합:</strong> 지속적인 통합(CI)을 강조하며, 충돌을 조기에 해결하고자 하는 팀.</p>
+                         <p class="mt-2"><strong>게임 개발 고려사항:</strong> 다양한 직군이 하나의 저장소에 자주 커밋하는 게임 개발 환경에 효율적일 수 있습니다. 단, 자동화된 검증(CI, Git Hooks)이 필수적입니다.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Conclusion Section -->
+            <section id="conclusion" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-6">✨ 결론 및 핵심 요약</h2>
+                 <p class="mb-8 text-slate-600">지금까지 게임 개발 환경에서 Git과 GitHub를 효과적으로 활용하는 방법을 살펴보았습니다. 버전 관리의 기본부터 대용량 파일 처리, 협업 워크플로우까지, 이 모든 지식은 여러분의 프로젝트를 성공으로 이끄는 든든한 기반이 될 것입니다.</p>
+                
+                <div class="bg-white p-8 rounded-lg shadow-lg">
+                    <h3 class="text-2xl font-bold mb-4 text-teal-700">핵심 성공 전략</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <span class="text-teal-500 font-bold text-2xl mr-4">1.</span>
+                            <div>
+                                <h4 class="font-bold">`.gitignore`를 철저히 관리하세요.</h4>
+                                <p class="text-slate-600">불필요한 파일을 제외하여 저장소를 가볍고 빠르게 유지하고, 잠재적 비용을 절감하세요.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-teal-500 font-bold text-2xl mr-4">2.</span>
+                            <div>
+                                <h4 class="font-bold">Git LFS를 현명하게 사용하세요.</h4>
+                                <p class="text-slate-600">대용량 에셋은 LFS로 관리하되, 비용 정책을 이해하고 프로젝트 규모에 맞게 계획하세요.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-teal-500 font-bold text-2xl mr-4">3.</span>
+                            <div>
+                                <h4 class="font-bold">Git Hooks로 실수를 자동 방지하세요.</h4>
+                                <p class="text-slate-600">Unity `.meta` 파일 문제나 파일명 오류 등 반복되는 실수를 자동화된 스크립트로 예방하여 팀의 생산성을 높이세요.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-teal-500 font-bold text-2xl mr-4">4.</span>
+                            <div>
+                                <h4 class="font-bold">우리 팀에 맞는 브랜치 전략을 선택하세요.</h4>
+                                <p class="text-slate-600">빠른 반복이 중요하다면 GitHub Flow나 Trunk-based Development를, 엄격한 관리가 필요하다면 Git Flow를 고려하세요. 정답은 없으며, 팀의 상황에 맞는 최적의 전략을 찾는 것이 중요합니다.</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <p class="mt-8 text-center text-lg font-semibold text-slate-700">궁극적으로, Git과 GitHub을 능숙하게 다루는 것은 프로젝트의 안정성을 확보하고, 팀의 생산성을 극대화하며, 더 나은 게임을 만드는 핵심 역량입니다.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="copy-feedback" class="copy-feedback">복사되었습니다!</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            const copyTableButtons = document.querySelectorAll('.copy-table-btn');
+            const feedbackElement = document.getElementById('copy-feedback');
+
+            function showSection(hash) {
+                const targetId = hash ? hash.substring(1) : 'intro';
+                
+                let sectionFound = false;
+                contentSections.forEach(section => {
+                    if (section.id === targetId) {
+                        section.classList.add('active');
+                        sectionFound = true;
+                    } else {
+                        section.classList.remove('active');
+                    }
+                });
+                if (!sectionFound) {
+                     document.getElementById('intro').classList.add('active');
+                }
+
+                navLinks.forEach(link => {
+                    if (link.getAttribute('href') === `#${targetId}`) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+
+                if (targetId === 'workflow') {
+                    createBranchingChart();
+                }
+            }
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    history.pushState(null, null, targetId);
+                    showSection(targetId);
+                });
+            });
+
+            window.addEventListener('popstate', () => {
+                showSection(window.location.hash);
+            });
+
+            function showCopyFeedback() {
+                feedbackElement.style.opacity = '1';
+                setTimeout(() => {
+                    feedbackElement.style.opacity = '0';
+                }, 2000);
+            }
+
+            function copyToClipboard(text) {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text).then(showCopyFeedback).catch(err => console.error('Clipboard copy failed: ', err));
+                } else {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        showCopyFeedback();
+                    } catch (err) {
+                        console.error('Fallback copy failed', err);
+                    }
+                    document.body.removeChild(textArea);
+                }
+            }
+            
+            copyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetSelector = this.dataset.clipboardTarget;
+                    const codeElement = this.previousElementSibling;
+                    if (codeElement) {
+                        copyToClipboard(codeElement.textContent);
+                    }
+                });
+            });
+            
+            copyTableButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const command = this.dataset.command;
+                    if (command) {
+                        copyToClipboard(command);
+                    }
+                });
+            });
+
+
+            let branchingChartInstance = null;
+            function createBranchingChart() {
+                const ctx = document.getElementById('branchingChart').getContext('2d');
+                if (branchingChartInstance) {
+                    branchingChartInstance.destroy();
+                }
+                branchingChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Git Flow', 'GitHub Flow', 'Trunk-based Dev'],
+                        datasets: [{
+                            label: '복잡성',
+                            data: [8, 3, 2],
+                            backgroundColor: 'rgba(239, 68, 68, 0.6)',
+                            borderColor: 'rgba(239, 68, 68, 1)',
+                            borderWidth: 1
+                        }, {
+                            label: '배포 속도',
+                            data: [4, 8, 9],
+                            backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 1
+                        }, {
+                            label: '안정성 (릴리즈 기준)',
+                            data: [9, 7, 6],
+                            backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                            borderColor: 'rgba(16, 185, 129, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                max: 10,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '브랜치 전략 특성 비교 (10점 만점)',
+                                font: { size: 16 }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.x !== null) {
+                                            label += context.parsed.x + '점';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Initial load
+            showSection(window.location.hash);
+        });
+    </script>
+</body>
+</html>
