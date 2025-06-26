@@ -10,8 +10,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Calm Harmony (Slate/Stone neutrals with a Teal accent) -->
-    <!-- Application Structure Plan: A single-page application with a fixed sidebar for navigation and a main content area. This modular, non-linear structure replaces the long-form report, allowing users to jump to specific topics like 'Project Setup' or 'Workflows'. This task-oriented design is better for learning and reference than a linear document. Key interactions include an interactive command cheatsheet and a comparative chart for branching strategies to enhance understanding. -->
-    <!-- Visualization & Content Choices: Report Info: Comparison of branching strategies -> Goal: Compare -> Viz: Horizontal Bar Chart (Chart.js) -> Interaction: Hover for tooltips with scores -> Justification: Visually summarizes complex trade-offs, making them easier to grasp than text alone. Report Info: Git LFS commands -> Goal: Inform/Organize -> Presentation: Interactive HTML Table -> Interaction: Click-to-copy command -> Justification: Provides a practical, ready-to-use tool for developers. Report Info: Branching workflow diagrams -> Goal: Organize/Explain -> Presentation: HTML/CSS (Tailwind) flexbox diagrams -> Interaction: Static visual aid -> Justification: Clarifies abstract workflow concepts without relying on external graphics or unsupported libraries. -->
+    <!-- Application Structure Plan: A single-page application with a fixed sidebar for navigation and a main content area. This modular, non-linear structure replaces the long-form report, allowing users to jump to specific topics like 'Project Setup' or 'Workflows'. This task-oriented design is better for learning and reference than a linear document. Key interactions include an interactive command cheatsheet, a comparative chart for branching strategies, and custom tooltips for real-world usage examples to enhance understanding. -->
+    <!-- Visualization & Content Choices: Report Info: Comparison of branching strategies -> Goal: Compare -> Viz: Horizontal Bar Chart (Chart.js) -> Interaction: Hover for tooltips with scores -> Justification: Visually summarizes complex trade-offs, making them easier to grasp than text alone. Report Info: Git LFS commands -> Goal: Inform/Organize -> Presentation: Interactive HTML Table -> Interaction: Click-to-copy command -> Justification: Provides a practical, ready-to-use tool for developers. Report Info: Branching workflow diagrams -> Goal: Organize/Explain -> Presentation: HTML/CSS (Tailwind) flexbox diagrams -> Interaction: Static visual aid -> Justification: Clarifies abstract workflow concepts without relying on external graphics or unsupported libraries. Report Info: Key GitHub features -> Goal: Inform/Show usage -> Presentation: Text with interactive tooltips -> Interaction: Hover over feature name to see real-world example -> Justification: Provides concrete, actionable examples in a non-intrusive way, enhancing practical understanding. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
@@ -73,6 +73,21 @@
             opacity: 0;
             transition: opacity 0.5s;
         }
+        .custom-tooltip {
+            position: absolute;
+            background-color: #334155; /* slate-700 */
+            color: white;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem; /* text-sm */
+            max-width: 300px;
+            text-align: center;
+            z-index: 50; /* ensure it's above other content */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            pointer-events: none; /* Allows clicks to pass through to underlying elements */
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -86,7 +101,8 @@
                     <li><a href="#intro" class="nav-link block p-3 rounded-lg mb-2 transition-colors duration-200 hover:bg-slate-300">🚀 소개</a></li>
                     <li><a href="#basics" class="nav-link block p-3 rounded-lg mb-2 transition-colors duration-200 hover:bg-slate-300">📚 기본 다지기</a></li>
                     <li><a href="#setup" class="nav-link block p-3 rounded-lg mb-2 transition-colors duration-200 hover:bg-slate-300">🛠️ 프로젝트 설정</a></li>
-                    <li><a href="#workflow" class="nav-link block p-3 rounded-lg mb-2 transition-colors duration-200 hover:bg-slate-300">🌊 협업 워크플로우</a></li>
+                    <li><a href="#practical-features" class="nav-link block p-3 rounded-lg mb-2 transition-colors duration-200 hover:bg-slate-300">💡 실전 GitHub 핵심 기능</a></li>
+                    <li><a href="#workflow" class="nav-link block p-3 rounded-lg mb-2 transition-colors duration-200 hover:bg-slate-300">🌊 협업 워크플로우: 브랜치 전략</a></li>
                     <li><a href="#conclusion" class="nav-link block p-3 rounded-lg mb-2 transition-colors duration-200 hover:bg-slate-300">✨ 결론</a></li>
                 </ul>
             </nav>
@@ -210,10 +226,95 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Practical Features Section -->
+            <section id="practical-features" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-6">💡 실전 GitHub 핵심 기능</h2>
+                <p class="mb-8 text-slate-600">이 섹션에서는 현업 게임 개발팀에서 GitHub를 통해 프로젝트를 관리하고 협업할 때 자주 사용하는 핵심 기능들을 소개합니다. 각 기능의 이름에 마우스를 올리면 실제 현업에서 어떻게 활용되는지에 대한 구체적인 예시를 확인할 수 있습니다.</p>
+
+                <div class="space-y-8">
+                    <!-- Issues -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-bold mb-3 text-teal-700">
+                            <span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="새로운 기능 개발 요청, 버그 신고, 개선 사항 제안 등 모든 작업 단위를 관리합니다. 진행 상황 추적, 담당자 지정, 라벨링을 통해 투명성을 높입니다.">이슈 (Issues)</span>
+                        </h3>
+                        <p class="mb-4 text-slate-600">이슈는 GitHub에서 버그 추적, 기능 요청, 작업 관리 등 프로젝트의 모든 할 일을 체계적으로 기록하고 관리하는 데 사용됩니다. 팀원 간의 소통과 작업의 투명성을 확보하는 데 매우 중요합니다.</p>
+                        <ul class="list-disc list-inside ml-2 space-y-2 text-slate-700">
+                            <li>새로운 캐릭터 모델링 작업 요청: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="[UI] 메인 메뉴 버튼 폰트 크기 조정 요청">UI/UX 개선</span>"</li>
+                            <li>버그 신고: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="[버그] 아이템 획득 시 클라이언트 강제 종료 현상">클라이언트 강제 종료 버그</span>"</li>
+                            <li>기능 제안: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="[기능] 게임 내 채팅 시스템 구현">게임 내 채팅 시스템</span>"</li>
+                        </ul>
+                    </div>
+
+                    <!-- Pull Requests -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-bold mb-3 text-teal-700">
+                            <span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="자신의 브랜치에서 작업한 변경 사항을 메인 브랜치(또는 다른 통합 브랜치)로 병합하기 위해 제안하는 기능입니다. 코드 리뷰와 토론을 통해 코드 품질을 높입니다.">Pull Requests (PRs)</span>
+                        </h3>
+                        <p class="mb-4 text-slate-600">Pull Request는 자신의 작업 브랜치에서 이루어진 변경 사항을 주 브랜치(예: `main` 또는 `develop`)에 통합하기 위해 제안하는 과정입니다. 이 과정에서 동료들의 코드 리뷰와 토론을 통해 코드의 품질과 안정성을 향상시킬 수 있습니다.</p>
+                        <ul class="list-disc list-inside ml-2 space-y-2 text-slate-700">
+                            <li>새로운 기능 개발 완료: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="[Feature] 신규 스킬 시스템 구현 (브랜치: feature/new-skill-system)">스킬 시스템 구현 PR</span>"</li>
+                            <li>버그 수정 요청: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="[Fix] 네트워크 지연 현상 수정 (브랜치: bugfix/network-delay)">네트워크 지연 수정 PR</span>"</li>
+                            <li>아트 에셋 업데이트: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="[Art] 캐릭터 모델 및 애니메이션 업데이트 (LFS 적용)">캐릭터 에셋 업데이트 PR</span>"</li>
+                        </ul>
+                    </div>
+
+                    <!-- Projects -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-bold mb-3 text-teal-700">
+                            <span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="칸반 보드, 스프레드시트 뷰 등을 제공하여 이슈와 PR을 시각적으로 관리하고, 프로젝트 진행 상황을 한눈에 파악할 수 있도록 돕습니다.">프로젝트 (Projects)</span>
+                        </h3>
+                        <p class="mb-4 text-slate-600">GitHub Projects는 칸반 보드 스타일이나 스프레드시트 형태로 프로젝트의 이슈, Pull Request를 시각적으로 관리할 수 있는 도구입니다. 스크럼/애자일 방법론을 따르는 팀에서 스프린트 관리에 유용합니다.</p>
+                        <ul class="list-disc list-inside ml-2 space-y-2 text-slate-700">
+                            <li>스프린트 백로그 관리: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="이번 스프린트에 'UI 시스템 리팩토링' 이슈 카드를 백로그에서 '진행 중'으로 이동">백로그에서 카드 이동</span>"</li>
+                            <li>작업 진행 상황 추적: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="'보스 몬스터 AI 구현' 이슈 카드를 '할 일'에서 '완료' 칼럼으로 이동">AI 구현 상태 업데이트</span>"</li>
+                            <li>팀별 작업 현황 파악: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="이번 주 각 팀(클라이언트, 서버, 아트)의 진행 상황을 프로젝트 보드에서 필터링하여 확인">팀별 필터링</span>"</li>
+                        </ul>
+                    </div>
+
+                    <!-- GitHub Actions -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-bold mb-3 text-teal-700">
+                            <span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="코드 푸시, PR 생성 등 특정 이벤트가 발생할 때 자동으로 테스트, 빌드, 배포 등의 작업을 수행하는 CI/CD(지속적 통합/지속적 배포) 도구입니다.">GitHub Actions (CI/CD)</span>
+                        </h3>
+                        <p class="mb-4 text-slate-600">GitHub Actions는 코드 변경이 있을 때 자동으로 테스트를 실행하거나, 게임 빌드를 생성하고, 심지어 배포까지 자동화할 수 있는 강력한 CI/CD(지속적 통합/지속적 배포) 도구입니다. 반복적인 수동 작업을 줄여 개발 생산성을 크게 높여줍니다.</p>
+                        <ul class="list-disc list-inside ml-2 space-y-2 text-slate-700">
+                            <li>자동 빌드 및 테스트: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="매번 코드를 푸시할 때마다 GitHub Actions가 자동으로 클라이언트 빌드를 생성하고 유닛 테스트를 실행하여 오류를 조기 감지">푸시 시 자동 빌드/테스트</span>"</li>
+                            <li>릴리즈 자동화: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="새로운 버전 태그(e.g., v1.0.0)가 푸시되면, GitHub Actions가 해당 버전의 게임 실행 파일을 자동으로 빌드하여 릴리즈 페이지에 첨부">버전 태그 생성 시 자동 릴리즈</span>"</li>
+                            <li>Unity Asset Store 제출 자동화: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="특정 브랜치에 머지될 때마다 Unity 패키지를 빌드하고 Unity Asset Store에 자동으로 업로드">Unity 패키지 자동 업로드</span>"</li>
+                        </ul>
+                    </div>
+
+                    <!-- Wiki & Discussions -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-bold mb-3 text-teal-700">
+                            <span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="Wiki는 프로젝트의 공식 문서, 기술 가이드, 설계 결정 등을 기록하는 데 사용됩니다. Discussions는 비동기적인 팀 토론이나 커뮤니티 Q&A에 활용됩니다.">Wiki & Discussions</span>
+                        </h3>
+                        <p class="mb-4 text-slate-600">Wiki는 프로젝트의 공식 문서, 기술 가이드, 온보딩 자료 등 고정적이고 중요한 정보를 공유하는 공간입니다. Discussions는 이슈로 등록하기에는 애매하거나 광범위한 주제에 대한 비동기적인 토론, 아이디어 공유, Q&A를 위한 포럼 형태의 기능입니다.</p>
+                        <ul class="list-disc list-inside ml-2 space-y-2 text-slate-700">
+                            <li>Wiki: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="새로운 팀원 온보딩을 위한 '개발 환경 설정 가이드' 문서 작성">개발 환경 설정 가이드</span>", "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="게임 엔진 버전 업그레이드 시 고려사항 및 절차 문서화">엔진 업그레이드 문서</span>"</li>
+                            <li>Discussions: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="다음 업데이트에 추가할 신규 콘텐츠 아이디어에 대한 자유로운 토론 시작">신규 콘텐츠 아이디어 토론</span>", "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="게임 내 물리 엔진 변경에 대한 기술적 논의 진행">물리 엔진 변경 논의</span>"</li>
+                        </ul>
+                    </div>
+
+                    <!-- Search -->
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-bold mb-3 text-teal-700">
+                            <span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="저장소 내의 모든 코드, 이슈, Pull Request, Wiki 등에서 원하는 정보를 빠르게 찾아냅니다. 다양한 필터와 검색 연산자를 활용할 수 있습니다.">검색 (Search)</span>
+                        </h3>
+                        <p class="mb-4 text-slate-600">GitHub의 강력한 검색 기능은 대규모 프로젝트에서 특정 코드, 이슈, Pull Request 또는 문서를 빠르게 찾아내는 데 필수적입니다. 다양한 검색 연산자를 활용하여 원하는 정보를 정확하게 필터링할 수 있습니다.</p>
+                        <ul class="list-disc list-inside ml-2 space-y-2 text-slate-700">
+                            <li>특정 버그 관련 이슈 찾기: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="`is:issue is:open label:bug '네트워크 동기화 오류'`와 같이 검색하여 미해결 버그 이슈를 찾습니다.">특정 버그 이슈 검색</span>"</li>
+                            <li>특정 파일 내 함수 정의 찾기: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="`AddItemToInventory in:file filename:PlayerInventory.cs`와 같이 검색하여 `PlayerInventory.cs` 파일 내 `AddItemToInventory` 함수 정의를 찾습니다.">코드 내 함수 검색</span>"</li>
+                            <li>특정 팀원이 커밋한 내용 확인: "<span class="tooltip-trigger cursor-pointer border-b border-dashed border-slate-400 pb-0.5" data-tooltip-content="`committer:johndoe after:2024-06-01`와 같이 검색하여 특정 날짜 이후 'johndoe'가 커밋한 모든 변경 사항을 확인">팀원 커밋 내역 검색</span>"</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
             
             <!-- Workflow Section -->
             <section id="workflow" class="content-section">
-                <h2 class="text-3xl font-bold text-slate-900 mb-6">협업 워크플로우: 브랜치 전략 비교</h2>
+                <h2 class="text-3xl font-bold text-slate-900 mb-6">협업 워크플로우: 브랜치 전략</h2>
                  <p class="mb-8 text-slate-600">성공적인 협업을 위해서는 팀에 맞는 Git 브랜치 전략을 선택하는 것이 매우 중요합니다. 이 섹션에서는 대표적인 세 가지 브랜치 전략(Git Flow, GitHub Flow, Trunk-based Development)을 소개하고, 각각의 특징과 장단점을 비교 분석합니다. 특히 게임 개발이라는 특수한 환경에 어떤 전략이 더 적합할지 시각적인 차트와 함께 탐색해 봅니다.</p>
 
                 <div class="bg-white p-6 rounded-lg shadow-md mb-8">
@@ -455,6 +556,45 @@
                     }
                 });
             }
+
+            // Tooltip logic
+            const tooltipTriggerElements = document.querySelectorAll('.tooltip-trigger');
+            let customTooltip = document.createElement('div');
+            customTooltip.className = 'custom-tooltip';
+            document.body.appendChild(customTooltip);
+
+            tooltipTriggerElements.forEach(trigger => {
+                trigger.addEventListener('mouseenter', function(e) {
+                    const content = this.dataset.tooltipContent;
+                    customTooltip.textContent = content;
+
+                    const rect = this.getBoundingClientRect();
+                    customTooltip.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
+                    customTooltip.style.top = `${rect.top + window.scrollY - customTooltip.offsetHeight - 10}px`; // 10px above the element
+                    customTooltip.style.transform = 'translateX(-50%)'; // Center horizontally
+
+                    // Adjust if it goes off screen (simple left/right adjustment)
+                    const tooltipWidth = customTooltip.offsetWidth;
+                    if (parseFloat(customTooltip.style.left) < 0) {
+                        customTooltip.style.left = '10px';
+                        customTooltip.style.transform = 'none';
+                    }
+                    if (parseFloat(customTooltip.style.left) + tooltipWidth > window.innerWidth) {
+                        customTooltip.style.left = `${window.innerWidth - tooltipWidth - 10}px`;
+                        customTooltip.style.transform = 'none';
+                    }
+
+
+                    customTooltip.style.opacity = '1';
+                    customTooltip.style.visibility = 'visible';
+                });
+
+                trigger.addEventListener('mouseleave', function() {
+                    customTooltip.style.opacity = '0';
+                    customTooltip.style.visibility = 'hidden';
+                });
+            });
+
 
             // Initial load
             showSection(window.location.hash);
